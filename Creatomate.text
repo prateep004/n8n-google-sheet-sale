@@ -1,0 +1,10 @@
+api-key : 313edd8383ae4f97948ee494fc26c957a6f9287fc209ecab3a1a61e87dc16208243c2a4b1f4cb76f4371bef09bf87e3a
+
+
+{
+  "template_id": "4b558ba2-0346-4999-986a-f0c8ac8750b0",
+  "modifications": {
+    "Text.Caption": "{{ JSON.parse($json.text).script }}",
+    "Text.Title": "{{ $node["Get row(s) in sheet"].json["product_name"] }}"
+  }
+}
