@@ -1,0 +1,197 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "1",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [820, 360]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "keyword",
+              "stringValue": "พัดลมไร้สาย"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2",
+      "name": "Set Search Keyword",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [1040, 360]
+    },
+    {
+      "parameters": {
+        "url": "={{ \"https://shopee.co.th/api/v4/search/search_items?keyword=\" + $json.keyword + \"&limit=10&offset=0\" }}",
+        "options": {
+          "headerParametersUI": {
+            "parameter": [
+              {
+                "name": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+              },
+              {
+                "name": "af-ac-enc-dat",
+                "value": "null"
+              }
+            ]
+          }
+        }
+      },
+      "id": "3",
+      "name": "Search Shopee (API Sim)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1260, 360]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "id": "4",
+      "name": "Split Items",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 3,
+      "position": [1480, 360]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "Title",
+              "value": "={{ $json.item_basic.name }}"
+            },
+            {
+              "name": "Price",
+              "value": "={{ $json.item_basic.price / 100000 }}"
+            },
+            {
+              "name": "ImageURL",
+              "value": "={{ \"https://down-th.img.susercontent.com/file/\" + $json.item_basic.image }}"
+            },
+            {
+              "name": "ProductURL",
+              "value": "={{ \"https://shopee.co.th/product/\" + $json.item_basic.shopid + \"/\" + $json.item_basic.itemid }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5",
+      "name": "Format Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [1700, 360]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "ใส่_ID_ของ_Google_Sheet_ที่นี่",
+          "mode": "id"
+        },
+        "sheetName": "Sheet1",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Title": "={{ $json.Title }}",
+            "Price": "={{ $json.Price }}",
+            "ImageURL": "={{ $json.ImageURL }}",
+            "ProductURL": "={{ $json.ProductURL }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1920, 360],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ใส่_Credentials_ID_ที่นี่",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Set Search Keyword",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Search Keyword": {
+      "main": [
+        [
+          {
+            "node": "Search Shopee (API Sim)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Shopee (API Sim)": {
+      "main": [
+        [
+          {
+            "node": "Split Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Items": {
+      "main": [
+        [
+          {
+            "node": "Format Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Data": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

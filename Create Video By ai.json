@@ -1,0 +1,343 @@
+{
+  "name": "Create Video By ai",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2574d37f-d087-4e0d-8860-a10f6b3202df",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-3.5-turbo",
+          "mode": "list",
+          "cachedResultName": "GPT-3.5-TURBO"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "\"ช่วยวิเคราะห์สินค้าชื่อ: {{ $json.product_name }} > สำหรับกลุ่มเป้าหมาย: {{ $json.target_audience }}\n\nช่วยทำ 2 อย่างดังนี้:\n\nสรุปจุดเด่น 3 ข้อสั้นๆ ที่น่าสนใจที่สุด\n\nเขียนสคริปต์ขายของสไตล์ TikTok ความยาวไม่เกิน 30 วินาที\n\nสำคัญ: ให้ตอบกลับเป็น JSON Format เท่านั้นตามโครงสร้างนี้:\n{\n\"benefits\": \"ใส่จุดเด่นที่นี่\",\n\"script\": \"ใส่สคริปต์ที่นี่\"\n}\""
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "16dfaa78-7534-454e-8651-d24d83a78b6b",
+      "name": "Message a model",
+      "alwaysOutputData": true,
+      "executeOnce": false,
+      "retryOnFail": false,
+      "credentials": {
+        "openAiApi": {
+          "id": "8TqYm4xGkAq92bEa",
+          "name": "OpenAi account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.creatomate.com/v2/renders",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "=json",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "jsonBody": "={{\nJSON.stringify({\n  \"template_id\": \"4b558ba2-0346-4999-986a-f0c8ac8750b0\",\n  \"modifications\": {\n    \"Background-Image.source\": \"https://creatomate.com/files/assets/d3703f1f-fc12-4229-8cd6-ab23c5ddd782\",\n    \"Discount.text\": \"-30%\",\n    \"Title.text\": $json.product_name,\n    \"Caption.text\": $json.script\n  }\n})\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        992,
+        0
+      ],
+      "id": "6c4e1546-91b4-419d-9712-7199a68a2732",
+      "name": "HTTP Request",
+      "alwaysOutputData": true,
+      "executeOnce": false,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wwYqQ9EhCSP32b8Z",
+          "name": "Header Auth account"
+        },
+        "httpBearerAuth": {
+          "id": "UwY5r78mKim1pr4T",
+          "name": "Bearer Auth account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "18l_CkcOAzzzdNu85jCnt4wL8kr5DXM6t4ceqdRt9Jfc",
+          "mode": "list",
+          "cachedResultName": "Ai ยอดนักป้ายยา  n8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18l_CkcOAzzzdNu85jCnt4wL8kr5DXM6t4ceqdRt9Jfc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "n8n-google-sheet-sale",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18l_CkcOAzzzdNu85jCnt4wL8kr5DXM6t4ceqdRt9Jfc/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $node[\"Get row(s) in sheet\"].json.row_number }}",
+            "video_url": "={{ $json.url }}",
+            "Done": "={{ \"Done\" }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "product_name",
+              "displayName": "product_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "target_audience",
+              "displayName": "target_audience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "จุดเด่นที่ AI คิดให้ (Output)",
+              "displayName": "จุดเด่นที่ AI คิดให้ (Output)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "บทพูดวิดีโอ (Output)",
+              "displayName": "บทพูดวิดีโอ (Output)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "video_url",
+              "displayName": "video_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Done",
+              "displayName": "Done",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        16,
+        224
+      ],
+      "id": "893d2a5e-4274-4251-8ac6-d0de8de1cecc",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "VLVqKC87ChfM0rdx",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "18l_CkcOAzzzdNu85jCnt4wL8kr5DXM6t4ceqdRt9Jfc",
+          "mode": "list",
+          "cachedResultName": "Ai ยอดนักป้ายยา  n8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18l_CkcOAzzzdNu85jCnt4wL8kr5DXM6t4ceqdRt9Jfc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "n8n-google-sheet-sale",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18l_CkcOAzzzdNu85jCnt4wL8kr5DXM6t4ceqdRt9Jfc/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "pending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "588d0fed-a83f-4d60-bc21-cb00373b9dcc",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "executeOnce": false,
+      "retryOnFail": false,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleApi": {
+          "id": "VLVqKC87ChfM0rdx",
+          "name": "Google Service Account account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n  try {\n    // 1. เข้าถึง Text จาก OpenAI\n    let rawText = item.json.output[0].content[0].text;\n    \n    // 2. Clean ขั้นต้น: ลบ Markdown และช่องว่างหัวท้าย\n    rawText = rawText.replace(/```json|```/g, \"\").trim();\n\n    // 3. 💥 แก้ไขจุดพัง: ลบ Bad Control Characters (เช่น \\n ที่เป็นตัวอักษรจริงๆ ไม่ใช่รหัส)\n    // โค้ดนี้จะช่วยล้างพวกตัวอักษรควบคุมที่ทำให้ JSON พัง\n    const sanitizedText = rawText.replace(/[\\u0000-\\u001F\\u007F-\\u009F]/g, \"\");\n\n    // 4. Parse เป็น JSON\n    const parsedData = JSON.parse(sanitizedText);\n    \n    const productName = item.json.product_name || \"สินค้า\";\n    const targetAudience = item.json.target_audience || \"ลูกค้า\";\n    \n    // 5. จัดการ Script และแทนที่ตัวแปร\n    const cleanScript = parsedData.script\n      .replace(/\\{\\{\\s?\\$json\\.product_name\\s?\\}\\}/g, productName)\n      .replace(/\\{\\{\\s?\\$json\\.target_audience\\s?\\}\\}/g, targetAudience);\n\n    return {\n      json: {\n        product_name: productName,\n        benefits: parsedData.benefits,\n        script: cleanScript\n      }\n    };\n  } catch (error) {\n    return { \n      json: {\n        error: \"JSON Sanitization Failed\", \n        message: error.message,\n        // ส่ง raw text ออกมาดูเพื่อหาว่าตำแหน่งที่ 86 คือตัวอะไร\n        debug_text: item.json.output[0].content[0].text\n      }\n    };\n  }\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        0
+      ],
+      "id": "46cdd83c-b73f-4706-bc79-4640086bc85e",
+      "name": "Code in JavaScript",
+      "alwaysOutputData": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "256da16d-6c79-40db-bcb7-9312924cc1e8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b6908bd8e074a5b590f19614a3da7c53e2425758c86ddf5a603e7608d7ba2393"
+  },
+  "id": "RAaaUgh1umFFMSTG",
+  "tags": []
+}
